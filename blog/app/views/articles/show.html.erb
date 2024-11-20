@@ -1,0 +1,43 @@
+<div class="card">
+  <div class="card-body">
+    <h2 class="card-title"><%= @article.title %></h2>
+    <p class="card-text"><%= @article.text %></p>
+
+    <% if user_signed_in? && @article.user == current_user %>
+      <%= link_to 'Edit', edit_article_path(@article), class: "btn btn-warning" %>
+      <%= button_to 'Destroy', article_path(@article), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger" %>
+    <% end %>
+    <%= link_to 'Back to Articles', articles_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<!-- Sección de comentarios -->
+<div class="mt-4">
+  <h3>Comments</h3>
+
+  <!-- Lista de comentarios -->
+  <% @article.comments.each do |comment| %>
+    <div class="card mb-3">
+      <div class="card-body">
+        <p><strong><%= comment.user.email %></strong>: <%= comment.body %></p>
+        <% if user_signed_in? && (comment.user == current_user || @article.user == current_user) %>
+          <%= button_to 'Delete', article_comment_path(@article, comment), method: :delete, class: "btn btn-danger btn-sm", data: { confirm: 'Are you sure?' } %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Formulario para agregar un comentario -->
+  <% if user_signed_in? %>
+    <h4>Add a Comment</h4>
+    <%= form_with(model: [@article, Comment.new], local: true, class: "form") do |form| %>
+      <div class="form-group">
+        <%= form.label :body, "Comment", class: "form-label" %>
+        <%= form.text_area :body, class: "form-control", rows: 3 %>
+      </div>
+      <%= form.submit "Add Comment", class: "btn btn-primary mt-2" %>
+    <% end %>
+  <% else %>
+    <p class="text-muted">You need to <%= link_to 'Log in', new_user_session_path %> to leave a comment.</p>
+  <% end %>
+</div>
